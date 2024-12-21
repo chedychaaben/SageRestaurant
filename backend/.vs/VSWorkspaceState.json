@@ -1,0 +1,11 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Sage",
+    "\\Sage\\Models",
+    "\\Sage\\Models\\Repository",
+    "\\Sage\\Models\\Repository\\Order"
+  ],
+  "SelectedNode": "\\Sage\\Models\\AppDbContext.cs",
+  "PreviewInSolutionExplorer": false
+}

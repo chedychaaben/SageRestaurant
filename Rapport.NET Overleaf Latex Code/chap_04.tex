@@ -1,0 +1,118 @@
+\chapter{Réalisation et Resultats}
+
+
+\section{Architecture de l'Application}
+
+L'application suit une architecture client-serveur pour garantir modularité et évolutivité.
+\begin{itemize}
+    \item \textbf{Frontend} :  
+    Le frontend est développé en \textbf{ReactJS}, un framework JavaScript qui permet de concevoir des interfaces interactives et réactives. Il communique avec le backend via des appels API.
+
+    \item \textbf{Backend} :  
+    Le backend est implémenté en \textbf{ASP.NET API}, qui gère la logique métier, les interactions avec la base de données, et les points d’accès pour le frontend.  
+    Pour structurer le backend, les patterns Repository et IRepository ont été adoptés afin d'assurer une séparation claire des responsabilités et de simplifier la maintenance.
+
+    \item \textbf{Base de données} :  
+    SQL Server est utilisé pour assurer un stockage structuré et fiable des données.
+
+    \item \textbf{IDE} :  
+    Visual Studio et Visual Studio Code offrent un environnement de développement intuitif pour le backend et le frontend.
+\end{itemize}
+
+\section{Présentation des principaux endpoints}
+
+Dans le cadre de l’application de gestion des commandes de restaurant, plusieurs endpoints API ont été développés pour gérer les différentes fonctionnalités de l’application. Ces endpoints permettent d’interagir avec les données du système telles que l’authentification des utilisateurs, la gestion des commandes, et la consultation du menu. Voici une liste des principaux endpoints API développés :
+
+\subsection*{Compte (Account)}
+\begin{itemize}
+    \item \textbf{POST} /api/Account/Register : Inscription d'un nouvel utilisateur. Permet de créer un compte en envoyant les informations nécessaires (nom complet, email, mot de passe).
+    \item \textbf{POST} /api/Account/Login : Authentification. Retourne un JWT à utiliser pour sécuriser les requêtes futures.
+    \item \textbf{POST} /api/Account/ChangePassword : Permet de modifier le mot de passe de l'utilisateur authentifié.
+    \item \textbf{POST} /api/Account/ChangeFullName : Permet de mettre à jour le nom complet de l'utilisateur.
+    \item \textbf{GET} /api/Account/GetUsers : Retourne la liste de tous les utilisateurs (accessible avec des permissions spécifiques, par exemple pour un administrateur).
+    \item \textbf{GET} /api/Account/GetUser : Retourne les détails de l'utilisateur authentifié.
+\end{itemize}
+
+\subsection*{Panier (Cart)}
+\begin{itemize}
+    \item \textbf{POST} /api/Cart/AddCart : Crée un nouveau panier pour l'utilisateur authentifié.
+    \item \textbf{GET} /api/Cart/GetCart : Récupère les détails du panier de l'utilisateur.
+    \item \textbf{PUT} /api/Cart/EditCart : Modifie les informations du panier (ajout ou suppression de produits, par exemple).
+\end{itemize}
+
+\subsection*{Catégories (Category)}
+\begin{itemize}
+    \item \textbf{POST} /api/Category/AddCategory : Ajoute une nouvelle catégorie de produits (accessible aux administrateurs).
+    \item \textbf{GET} /api/Category/GetCategory/{Id} : Récupère les détails d'une catégorie spécifique.
+    \item \textbf{GET} /api/Category/GetAllCategories : Récupère toutes les catégories disponibles.
+    \item \textbf{PUT} /api/Category/EditCategory/{Id} : Modifie une catégorie existante.
+    \item \textbf{DELETE} /api/Category/DeleteCategory/{Id} : Supprime une catégorie existante.
+\end{itemize}
+
+\subsection*{Produits (Product)}
+\begin{itemize}
+    \item \textbf{POST} /api/Product/AddProduct : Ajoute un nouveau produit (accessibles aux administrateurs).
+    \item \textbf{GET} /api/Product/GetProduct/{Id} : Récupère les détails d'un produit spécifique.
+    \item \textbf{GET} /api/Product/GetAllProducts : Récupère tous les produits disponibles.
+    \item \textbf{GET} /api/Product/GetProductsByCategory/{CategoryId} : Récupère les produits liés à une catégorie spécifique.
+    \item \textbf{PUT} /api/Product/EditProduct/{Id} : Modifie les détails d'un produit existant.
+    \item \textbf{DELETE} /api/Product/DeleteProduct/{Id} : Supprime un produit existant.
+\end{itemize}
+
+\subsection*{Commandes (Order)}
+\begin{itemize}
+    \item \textbf{POST} /api/Order/AddOrder : Crée une nouvelle commande en envoyant les détails (produits, quantités, etc.).
+    \item \textbf{GET} /api/Order/GetOrder/{Id} : Récupère les détails d'une commande spécifique.
+    \item \textbf{GET} /api/Order/GetUserOrders : Récupère toutes les commandes passées par l'utilisateur authentifié.
+    \item \textbf{GET} /api/Order/GetAllOrders : Récupère toutes les commandes (accessible aux administrateurs).
+    \item \textbf{PUT} /api/Order/EditOrder/{Id} : Met à jour les détails d'une commande spécifique.
+    \item \textbf{DELETE} /api/Order/DeleteOrder/{Id} : Supprime une commande existante.
+    \item \textbf{PUT} /api/Order/Deliver/{Id} : Met à jour le statut d'une commande pour la marquer comme livrée.
+\end{itemize}
+
+\subsection*{Boissons (Drink) et Produits du jour (ProductOfTheDay)}
+Ces endpoints suivent des schémas similaires, avec des options pour ajouter, récupérer, modifier ou supprimer des éléments.
+
+\section{Fonctionnement des principaux endpoints}
+
+\subsection*{POST /api/Account/Login}
+L'utilisateur envoie ses informations d'identification (email et mot de passe) dans une requête POST. En cas de succès, un JWT est généré et retourné dans la réponse. Ce jeton doit être inclus dans l'en-tête \textbf{Authorization} des requêtes nécessitant une authentification.
+
+\subsection*{GET /api/Order/GetUserOrders}
+Ce point d'accès permet aux utilisateurs authentifiés de récupérer la liste de leurs commandes. Si le JWT est valide, la liste est renvoyée ; sinon, une réponse HTTP 401 Unauthorized est retournée.
+
+\subsection*{POST /api/Order/AddOrder}
+Les utilisateurs peuvent créer une commande en envoyant les détails (produits, quantités) dans une requête POST. Le JWT est utilisé pour authentifier et associer la commande à l'utilisateur.
+
+\subsection*{PUT /api/Order/EditOrder/{Id}}
+Les utilisateurs peuvent modifier leurs commandes en fournissant l'ID de la commande à mettre à jour et les nouvelles informations. Le JWT est vérifié pour garantir que seul l'utilisateur propriétaire ou un administrateur puisse effectuer cette modification.
+
+\subsection*{GET /api/Product/GetAllProducts}
+Ce point d'accès est ouvert pour récupérer la liste de tous les produits disponibles. Certaines fonctionnalités supplémentaires, comme le filtrage par catégorie, peuvent être implémentées.
+
+\section{Sécurisation des endpoints}
+
+\subsection*{Authentification avec JWT}
+Le système d'authentification utilise des tokens JWT générés lors de la connexion. Ces jetons permettent de valider l'identité de l'utilisateur pour toutes les requêtes subséquentes.
+
+\subsection*{Middleware de validation}
+Un middleware assure la validation des JWT. Si le token est absent ou invalide, l'accès à l'endpoint est refusé.
+
+\subsection*{Contrôle d'accès basé sur les rôles}
+Certains endpoints, comme ceux liés à la gestion des produits ou des catégories, sont restreints aux administrateurs grâce à des rôles inclus dans le JWT.
+
+\subsection{Création du compte Admin}
+Lors du lancement de l'application, un compte \textit{Admin} est créé automatiquement, avec l'assignation d'un rôle d'utilisateur \textit{Admin}. Cela permet à l'administrateur d'accéder aux fonctionnalités de gestion, telles que l'ajout, la modification ou la suppression de produits, la gestion des catégories et des utilisateurs, etc.
+
+\section{Évolutions possibles}
+
+Plusieurs améliorations et nouvelles fonctionnalités sont prévues pour enrichir l’application et offrir une expérience utilisateur encore plus fluide et complète :
+
+\begin{itemize}
+    \item \textbf{Suivi des commandes en temps réel :} Une fonctionnalité permettant aux utilisateurs de suivre en temps réel l'état de leur commande, depuis la préparation jusqu'à la livraison. Cela ajoutera une couche de transparence et de confort pour l'utilisateur.
+    
+    \item \textbf{Gestion des paiements en ligne :} L'intégration d'une solution de paiement en ligne permettra aux utilisateurs de régler leurs commandes directement via l'application, simplifiant ainsi le processus d'achat et améliorant l'expérience utilisateur.
+    
+    \item \textbf{Intégration avec des services de livraison :} Cette fonctionnalité permettra une gestion complète des commandes, y compris l'expédition et la livraison des produits. L'intégration avec des services tiers de livraison offrira une solution tout-en-un, améliorant ainsi l'efficacité et la satisfaction client.
+\end{itemize}
+Ces évolutions viseront à rendre l'application plus pratique, complète et compétitive sur le marché, tout en répondant mieux aux besoins des utilisateurs.

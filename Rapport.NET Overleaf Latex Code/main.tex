@@ -1,0 +1,56 @@
+\documentclass{report}
+\usepackage{float}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor} % Pour la coloration syntaxique
+\geometry{margin=1in}
+\graphicspath{{./img/}}
+\makeindex
+
+%================== Required Packages ===================%
+\usepackage{tcolorbox}       % For colored boxes
+\usepackage{afterpage}       % To execute commands after the current page
+\usepackage{array,longtable,multirow} % For advanced table formatting
+\usepackage{pifont}          % For special symbols (e.g., checkmarks, crosses)
+\usepackage{pdflscape}       % For landscape pages in PDF
+\usepackage{rotating}        % For rotating text and figures
+\usepackage{wrapfig}         % For wrapping text around figures
+\usepackage[french]{babel}   % For French language support
+
+\usepackage{fontspec} % For font management
+\usepackage{arabxetex} % Arabic support for XeLaTeX
+
+\newfontface\montserrat{Montserrat}
+
+\begin{document}
+
+\input{cover_page}
+\newpage
+
+\tableofcontents
+\newpage
+
+\input{introduction}
+\clearpage
+
+\input{chap_01}
+\clearpage
+
+\input{chap_02}
+\clearpage
+
+\input{chap_03}
+\clearpage
+
+\input{chap_04}
+\clearpage
+
+\input{conclusion}
+\clearpage
+
+\end{document}

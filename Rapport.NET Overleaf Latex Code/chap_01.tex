@@ -1,0 +1,65 @@
+\chapter{Authentification avec JWT (JSON Web Token)}
+
+
+L'authentification par \textbf{JWT (JSON Web Token)} est une méthode largement utilisée pour sécuriser les API web. Un \textbf{JWT} est un jeton compact et autonome qui permet de transmettre de manière sécurisée des informations entre un client et un serveur sous forme d'un objet JSON. Ce jeton est signé numériquement, généralement avec un algorithme comme HMAC ou RSA, afin de garantir l'intégrité des données et de vérifier l'authenticité de l'émetteur.
+
+L'authentification par JWT est particulièrement adaptée aux systèmes \textbf{stateless}, car elle permet de ne pas avoir besoin de stocker de session côté serveur. En effet, contrairement à une session traditionnelle où des informations sont conservées sur le serveur, le JWT contient toutes les informations nécessaires à l'identification de l'utilisateur et à l'autorisation d'accès aux ressources protégées.
+
+Les principaux avantages de l'utilisation de JWT sont les suivants :
+\begin{itemize}
+    \item \textbf{Stateless} : Il n'est pas nécessaire de maintenir l'état de la session sur le serveur, ce qui simplifie la gestion de la scalabilité de l'application.
+    \item \textbf{Sécurisé} : Le JWT est signé numériquement, ce qui garantit que son contenu n’a pas été modifié et qu’il provient d’une source fiable.
+    \item \textbf{Flexible} : Le JWT peut contenir diverses informations utiles, telles que les rôles d’utilisateur, la date d’expiration et d'autres attributs.
+\end{itemize}
+
+
+\section{Structure d’un JWT}
+
+Un JWT se compose de trois parties distinctes, séparées par des points (\texttt{.}) :
+\begin{itemize}
+    \item \textbf{Header} : Spécifie le type de token (JWT) et l’algorithme de signature utilisé (par exemple, HMAC SHA256 ou RSA).
+    \item \textbf{Payload} : Contient les informations ou \textbf{claims}, comme l’ID utilisateur, le rôle de l’utilisateur, et la date d’expiration du token.
+    \item \textbf{Signature} : Générée en utilisant le Header, le Payload et une clé secrète partagée entre le client et le serveur, afin de garantir l’intégrité et l'authenticité du jeton.
+\end{itemize}
+
+Voici un exemple de structure d'un JWT :
+\[
+\texttt{<Header>.<Payload>.<Signature>}
+\]
+
+\section{Pourquoi utiliser JWT ?}
+
+L'utilisation de JWT présente plusieurs avantages qui en font un choix idéal pour l'authentification et l'autorisation dans les applications modernes :
+\begin{itemize}
+    \item \textbf{Authentification sans état} : Le serveur n’a pas besoin de stocker de sessions, ce qui simplifie la gestion des ressources et augmente la scalabilité de l’application.
+    \item \textbf{Sécurité} : Le jeton est signé numériquement, ce qui garantit son intégrité. Il peut également être chiffré pour protéger les informations sensibles qu'il contient.
+    \item \textbf{Flexibilité} : Le JWT permet d'intégrer divers types de données, telles que les rôles ou les permissions, directement dans le jeton, facilitant ainsi la gestion des accès à différentes ressources.
+\end{itemize}
+
+\section{Fonctionnement dans l’application}
+
+Voici les étapes du fonctionnement de l’authentification avec JWT dans notre application :
+
+\begin{enumerate}
+    \item \textbf{Lors de la connexion de l’utilisateur} : Lorsque l’utilisateur saisit son nom d'utilisateur et son mot de passe dans l'interface de connexion, ces informations sont envoyées au backend via une requête HTTP. Si les informations sont valides, le backend génère un JWT contenant des informations telles que l'ID de l'utilisateur, son rôle et une date d’expiration du jeton. Ce jeton est renvoyé au client.
+    
+    \item \textbf{Stockage du JWT côté client} : Une fois le JWT généré et renvoyé, le frontend (le client) stocke ce jeton. Dans notre application, le jeton est généralement stocké dans le \texttt{localStorage} du navigateur, bien qu'il soit également possible de l'utiliser dans des cookies pour certaines configurations. Ce stockage permet au client de conserver le jeton entre les sessions et d'envoyer ce jeton pour chaque requête ultérieure.
+    
+    \item \textbf{Envoi du JWT dans les requêtes suivantes} : Pour chaque requête suivante nécessitant une authentification (par exemple, pour consulter le menu ou passer une commande), le client inclut le JWT dans l’en-tête \texttt{Authorization} de la requête HTTP. Le format de cet en-tête est :
+    \[
+    \texttt{Authorization: Bearer <token>}
+    \]
+    
+    \item \textbf{Validation du token par le serveur} : À chaque requête, le serveur vérifie la validité du jeton envoyé par le client. Cela se fait à l'aide d'un middleware sur le backend. Ce middleware décode le JWT, vérifie sa signature à l'aide de la clé secrète, et s'assure que le jeton n’a pas expiré. Si le jeton est valide, l'accès à la ressource demandée est accordé. En revanche, si le jeton est invalide ou expiré, le serveur renvoie une erreur d'authentification (généralement avec le code HTTP 401).
+\end{enumerate}
+
+\textbf{Résumé du flux d'authentification} :
+\begin{enumerate}
+    \item L'utilisateur se connecte avec ses identifiants.
+    \item Si l'authentification réussit, un JWT est généré et envoyé au client.
+    \item Le client stocke ce JWT et l'envoie avec chaque requête suivante.
+    \item Le backend valide le token et permet l'accès aux ressources protégées.
+\end{enumerate}
+
+Ce flux d’authentification garantit une gestion sécurisée et scalable des utilisateurs dans l'application, sans la nécessité de maintenir des sessions sur le serveur.
+

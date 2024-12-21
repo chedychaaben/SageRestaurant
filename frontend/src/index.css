@@ -1,0 +1,45 @@
+/* index.css */
+
+/* Reset all margins and paddings */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* Set default font family for consistency */
+  body {
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Remove extra spacing caused by unordered or ordered lists */
+  ul, ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Remove default styling for links */
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  /* Ensure full-page height for the body and html */
+  html, body {
+    height: 100%;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Remove default spacing in tables */
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+  

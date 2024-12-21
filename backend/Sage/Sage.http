@@ -1,0 +1,6 @@
+@Sage_HostAddress = http://localhost:5015
+
+GET {{Sage_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

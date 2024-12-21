@@ -1,0 +1,148 @@
+\chapter{Repository Pattern}
+
+
+Le \textbf{Repository Pattern} est un design pattern qui permet de créer une couche d’abstraction entre la logique métier d'une application et la persistance des données, généralement une base de données. Ce modèle se situe entre les couches de logique métier (services) et la couche d’accès aux données (base de données ou autre source de données), et permet de centraliser l’accès aux données dans une ou plusieurs classes appelées "repositories".
+
+L’idée principale du \textbf{Repository Pattern} est de masquer les détails de l’implémentation de l’accès aux données (requêtes SQL, appels API, etc.) tout en offrant une interface simple et cohérente pour interagir avec ces données. Cela simplifie la gestion des requêtes et la maintenance de l’application en offrant une structure flexible pour effectuer des opérations de lecture et d’écriture, tout en maintenant la séparation des responsabilités.
+
+Le \textbf{Repository Pattern} offre plusieurs avantages :
+\begin{itemize}
+    \item \textbf{Séparation des responsabilités} : La logique métier et l’accès aux données sont séparés, ce qui rend le code plus propre et plus maintenable.
+    \item \textbf{Facilité de test unitaire} : Le pattern permet de simuler facilement les interactions avec la base de données grâce à des interfaces et des mocks, ce qui facilite la réalisation de tests unitaires.
+    \item \textbf{Abstraction} : Il offre un niveau d'abstraction qui permet de changer la source de données sans affecter le reste de l’application.
+\end{itemize}
+
+En résumé, le \textbf{Repository Pattern} aide à maintenir une architecture claire, à réduire la complexité du code, et à rendre l’application plus flexible et testable.
+
+\section{Implémentation du Repository Pattern dans notre application}
+
+Dans notre application, le Repository Pattern a été utilisé pour gérer l’accès aux données, en particulier pour les entités telles que les les commandes, les produits, etc. Pour chaque entité, un \textbf{repository} spécifique a été créé, ce qui permet de centraliser toutes les opérations de base (CRUD - Create, Read, Update, Delete) liées à la gestion des données.
+
+\subsection{Création des interfaces de repository}
+
+Nous avons commencé par définir des interfaces de repository qui décrivent les méthodes nécessaires pour interagir avec chaque type de donnée. Par exemple, pour la gestion des produit, nous avons créé une interface \texttt{IProductRepository} qui définit les méthodes de base comme \texttt{Add()}, \texttt{Get()}, \texttt{GetByName()}, \texttt{Edit()} et \texttt{Delete()}. Voici un exemple d'interface pour le repository des utilisateurs :
+
+\begin{lstlisting}[language=CSharp]
+public interface IProductRepository
+{
+    Task<List<Product>> GetAll();
+
+    Task<Product> Add(Product prod);
+
+    Task<Product> Get(int id);
+
+    Task<Product> GetByName(string nom);
+
+    Task<Product> Edit(Product prod);
+
+    Task Delete(int id);
+}
+\end{lstlisting}
+
+\subsection{Implémentation des repositories}
+
+Ensuite, pour chaque interface de repository, une classe concrète a été créée pour implémenter la logique d'accès aux données. Par exemple, la classe \texttt{ProductRepository} implémente l'interface \texttt{IProductRepository} et contient les méthodes spécifiques pour accéder à la base de données à l'aide de \texttt{Entity Framework Core}, une technologie ORM utilisée dans notre application.\\
+
+Voici un exemple d'implémentation d'un repository pour l'entité \texttt{Product} :
+
+\begin{lstlisting}[language=CSharp]
+public class ProductRepository : IProductRepository
+{
+    private readonly AppDbContext context;
+    public ProductRepository(AppDbContext context)
+    {
+        this.context = context;
+    }
+
+    public async Task<Product> Add(Product prod)
+    {
+        var result = await context.Products.AddAsync(prod);
+        await context.SaveChangesAsync();
+        return result.Entity;
+    }
+
+
+    public async Task<List<Product>> GetAll()
+    {
+        List<Product> Products = await context.Products
+                    .Include(c => c.Ingredients)
+                    .Include(c => c.Supplements)
+                    .Include(c => c.Images)
+                    .ToListAsync();
+        return Products;
+    }
+
+    public async Task<Product> Get(int Id)
+    {
+        return await context.Products
+                    .Include(c => c.Ingredients)
+                    .Include(c => c.Supplements)
+                    .Include(c => c.Images)
+                    .FirstOrDefaultAsync(p => p.Id == Id);
+    }
+
+    public async Task<Product> GetByName(string Name)
+    {
+        return await context.Products
+                    .Include(c => c.Ingredients)
+                    .Include(c => c.Supplements)
+                    .Include(c => c.Images)
+                    .FirstOrDefaultAsync(p => p.Name == Name);
+    }
+
+    public async Task<Product> Edit(Product prod)
+    {
+        context.Products.Update(prod);
+        await context.SaveChangesAsync();
+        return prod;
+    }
+    public async Task Delete(int id)
+    {
+        var prod = await context.Products.FindAsync(id);
+        context.Products.Remove(prod);
+        await context.SaveChangesAsync();
+    }
+
+}
+\end{lstlisting}
+
+Cette classe \texttt{ProductRepository} contient toutes les opérations nécessaires pour manipuler les données liées à l’entité \texttt{Product} dans la base de données. Nous utilisons ici \texttt{Entity Framework Core} pour interagir avec la base de données (Code First).
+
+\subsection{Injection de dépendances}
+
+Afin de permettre à notre application de bénéficier du Repository Pattern, nous avons utilisé l’injection de dépendances pour injecter les repositories dans les services ou contrôleurs où ils sont nécessaires. Cela permet de séparer les responsabilités et de faciliter les tests unitaires.
+
+Voici un exemple de configuration de l’injection de dépendances dans \texttt{Program.cs} :
+
+\begin{lstlisting}[language=CSharp]
+
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IDrinkRepository, DrinkRepository>();
+builder.Services.AddScoped<IIngredientRepository, IngredientRepository>();
+builder.Services.AddScoped<ISupplementRepository, SupplementRepository>();
+builder.Services.AddScoped<IImageRepository, ImageRepository>();
+builder.Services.AddScoped<IProductOfTheDayRepository, ProductOfTheDayRepository>();
+builder.Services.AddScoped<IProductCartRepository, ProductCartRepository>();
+builder.Services.AddScoped<IProductCartIngredientRepository, ProductCartIngredientRepository>();
+builder.Services.AddScoped<IProductCartSupplementRepository, ProductCartSupplementRepository>();
+builder.Services.AddScoped<IDrinkCartRepository, DrinkCartRepository>();
+\end{lstlisting}
+
+Cette configuration permet à \texttt{ASP.NET Core} de résoudre automatiquement les dépendances lors de la création d'instances de contrôleurs ou de services. Par exemple, chaque fois qu'un contrôleur a besoin d'un \texttt{IProductRepository}, \texttt{ASP.NET Core} l’injectera automatiquement.
+
+\section{Avantages du Repository Pattern}
+
+L’implémentation du Repository Pattern dans notre application présente plusieurs avantages notables :
+
+\begin{itemize}
+    \item \textbf{Séparation des responsabilités} : Le Repository Pattern aide à maintenir une séparation claire entre la logique métier (services) et la gestion des données (repositories). Chaque classe se concentre sur une seule responsabilité, ce qui améliore la lisibilité et la maintenance du code.
+    \item \textbf{Centralisation de l'accès aux données} : Toutes les opérations liées à l’accès aux données sont regroupées dans les repositories, ce qui centralise et simplifie la gestion des requêtes. Si nous devons changer la manière d’interagir avec la base de données (par exemple, changer de technologie ORM), nous n’aurons qu'à modifier les repositories sans affecter la logique métier.
+    \item \textbf{Extensibilité} : Le Repository Pattern facilite l’ajout de nouvelles fonctionnalités et entités à l’application. En ajoutant simplement de nouvelles interfaces et classes de repository, nous pouvons gérer de nouvelles entités sans perturber les autres parties de l’application.
+\end{itemize}
+\\
+
+En conclusion, le Repository Pattern nous a permis de concevoir une architecture propre et flexible, en séparant clairement la logique métier de la gestion des données dans notre application.
+
